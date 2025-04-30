@@ -2,6 +2,7 @@
  * Main entry point for the insurance library
  */
 
+import { InsuranceValidationError } from './exceptions/InsuranceValidationError';
 import { AutoInsuranceApplicant } from './models/AutoInsuranceApplicant';
 import { GenericAutoInsurancePolicy } from './models/GenericAutoInsurancePolicy';
 
@@ -13,6 +14,7 @@ import { GenericAutoInsurancePolicy } from './models/GenericAutoInsurancePolicy'
  * @param ticketsLast3Yrs The number of tickets in the past 3 years
  * @param zip The zip code of the applicant
  * @returns The calculated annual premium
+ * @throws {InsuranceValidationError} If any of the input parameters are invalid
  */
 export function calculatePremium(
   age: number,
@@ -29,5 +31,16 @@ export function calculatePremium(
     ticketsLast3Yrs,
     zip,
   };
-  return policy.calculatePremium(applicant);
+
+  try {
+    return policy.calculatePremium(applicant);
+  } catch (error) {
+    if (error instanceof InsuranceValidationError) {
+      throw error;
+    }
+    throw new InsuranceValidationError('An unknown error occurred while calculating the premium.');
+  }
 }
+
+// Re-export the error types for consumers of the library
+export { InsuranceValidationError } from './exceptions/InsuranceValidationError';

@@ -1,4 +1,6 @@
 import { AutoInsurancePolicy } from './AutoInsurancePolicy';
+import { InsuranceValidator } from '../utils/InsuranceValidator';
+import { AutoInsuranceApplicant } from './AutoInsuranceApplicant';
 
 /**
  * A generic auto insurance policy that implements the AutoInsurancePolicy interface
@@ -15,6 +17,11 @@ export class GenericAutoInsurancePolicy extends AutoInsurancePolicy {
    * • Base rate: $500
    */
   private static readonly BASE_RATE = 500;
+  private static readonly MIN_AGE = 16;
+  private static readonly MAX_AGE = 120;
+  private static readonly MIN_VEHICLE_YEAR = 1900;
+  private static readonly MAX_TICKETS = 5;
+  private static readonly MAX_ACCIDENTS = 3;
   /**
    * The location factors for the policy
    * Based on this requirement:
@@ -39,9 +46,51 @@ export class GenericAutoInsurancePolicy extends AutoInsurancePolicy {
   }
 
   /**
+   * Validates all insurance applicant data according to this policy's rules
+   * @param age The applicant's age
+   * @param vehicleYear The vehicle's year
+   * @param accidentsLast5Yrs Number of accidents in last 5 years
+   * @param ticketsLast3Yrs Number of tickets in last 3 years
+   * @param zip The zip code
+   * @throws {InsuranceValidationError} If any validation fails
+   */
+  protected validateApplicant(
+    age: number,
+    vehicleYear: number,
+    accidentsLast5Yrs: number,
+    ticketsLast3Yrs: number,
+    zip: string
+  ): void {
+    // Validate age
+    InsuranceValidator.validateAge(
+      age,
+      GenericAutoInsurancePolicy.MIN_AGE,
+      GenericAutoInsurancePolicy.MAX_AGE
+    );
+
+    // Validate vehicle year
+    const currentYear = new Date().getFullYear();
+    InsuranceValidator.validateVehicleYear(
+      vehicleYear,
+      GenericAutoInsurancePolicy.MIN_VEHICLE_YEAR,
+      currentYear + 1
+    );
+
+    // Validate accidents
+    InsuranceValidator.validateAccidents(
+      accidentsLast5Yrs,
+      GenericAutoInsurancePolicy.MAX_ACCIDENTS
+    );
+
+    // Validate tickets
+    InsuranceValidator.validateTickets(ticketsLast3Yrs, GenericAutoInsurancePolicy.MAX_TICKETS);
+
+    // Validate zip code
+    InsuranceValidator.validateZip(zip);
+  }
+
+  /**
    * Calculates the surcharge for vehicles older than 5 years
-   * Based on this requirement:
-   * • Vehicle age surcharge: +$20 for each year the car’s age > 5
    * @param vehicleAge The age of the vehicle
    * @returns The surcharge amount
    */
@@ -52,8 +101,6 @@ export class GenericAutoInsurancePolicy extends AutoInsurancePolicy {
 
   /**
    * Calculates the driver age modifier
-   * Based on this requirement:
-   * • Driver age modifier: +$50 if age < 25; –$10 if age > 50
    * @param age The age of the driver
    * @returns The modifier amount
    */
@@ -68,8 +115,6 @@ export class GenericAutoInsurancePolicy extends AutoInsurancePolicy {
 
   /**
    * Calculates the violation fees
-   * Based on this requirement:
-   * • Violation fees: $100 for each accident, $25 for each ticket
    * @param accidentCount The number of accidents
    * @param ticketCount The number of tickets
    * @returns The total violation fees
@@ -79,12 +124,30 @@ export class GenericAutoInsurancePolicy extends AutoInsurancePolicy {
   }
 
   /**
-   * Calculates the location factor. This is a helper method that returns the location factor for the given zip code
-   * from the LOCATION_FACTORS map. If the zip code is not found in the map, it returns 1.0 as the default location factor.
+   * Calculates the location factor
    * @param zip The zip code
    * @returns The location factor
    */
   protected locationFactor(zip: string): number {
     return GenericAutoInsurancePolicy.LOCATION_FACTORS[zip] || 1.0;
+  }
+
+  /**
+   * Override the base class method to include validation
+   * @param applicant The auto insurance applicant
+   * @returns The calculated premium cost
+   * @throws {InsuranceValidationError} If the applicant data is invalid
+   */
+  public calculatePremium(applicant: AutoInsuranceApplicant): number {
+    // Validate all inputs before calculation
+    this.validateApplicant(
+      applicant.age,
+      applicant.vehicleYear,
+      applicant.accidentsLast5Yrs,
+      applicant.ticketsLast3Yrs,
+      applicant.zip
+    );
+
+    return super.calculatePremium(applicant);
   }
 }

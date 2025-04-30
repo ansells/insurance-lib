@@ -16,7 +16,6 @@ export abstract class AutoInsurancePolicy {
 
   /**
    * Calculates a surcharge based on the vehicle's age
-   * This algorithm must be implemented by the subclass
    * @param vehicleYear The year of the vehicle
    * @returns The surcharge amount
    */
@@ -24,7 +23,6 @@ export abstract class AutoInsurancePolicy {
 
   /**
    * Calculates a modifier based on the driver's age
-   * This algorithm must be implemented by the subclass
    * @param age The age of the driver
    * @returns The age modifier amount
    */
@@ -32,7 +30,6 @@ export abstract class AutoInsurancePolicy {
 
   /**
    * Calculates fees based on driving violations
-   * This algorithm must be implemented by the subclass
    * @param accidentCount Number of accidents in the past 5 years
    * @param ticketCount Number of tickets in the past 3 years
    * @returns The total violation fees
@@ -41,7 +38,6 @@ export abstract class AutoInsurancePolicy {
 
   /**
    * Calculates a location-based multiplier
-   * This algorithm must be implemented by the subclass
    * @param zip The zip code where the vehicle is located
    * @returns The location factor multiplier
    */
@@ -49,8 +45,6 @@ export abstract class AutoInsurancePolicy {
 
   /**
    * Calculates the premium cost for an auto insurance applicant
-   * This algorithm may be overridden by the subclass, but this is the default implementation
-   * that takes into account vehicle age, driver age, accidents, tickets, and the applicant's zip code
    * @param applicant The auto insurance applicant
    * @returns The calculated premium cost
    */

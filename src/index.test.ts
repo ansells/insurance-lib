@@ -1,4 +1,4 @@
-import { calculatePremium } from './index';
+import { calculatePremium, InsuranceValidationError } from './index';
 
 describe('calculatePremium', () => {
   describe('Drivers by age', () => {
@@ -97,6 +97,28 @@ describe('calculatePremium', () => {
     it('should return the base premium + $275 for a driver with 2 accidents and 3 tickets', () => {
       const result = calculatePremium(30, 2020, 2, 3, '98115');
       expect(result).toBe(775);
+    });
+  });
+
+  describe('Invalid input', () => {
+    it('should throw an error for an invalid age', () => {
+      expect(() => calculatePremium(15, 2020, 0, 0, '98115')).toThrow(InsuranceValidationError);
+    });
+
+    it('should throw an error for an invalid vehicle year', () => {
+      expect(() => calculatePremium(30, 1899, 0, 0, '98115')).toThrow(InsuranceValidationError);
+    });
+
+    it('should throw an error for too many accidents', () => {
+      expect(() => calculatePremium(30, 2020, 4, 0, '98115')).toThrow(InsuranceValidationError);
+    });
+
+    it('should throw an error for too many tickets', () => {
+      expect(() => calculatePremium(30, 2020, 0, 6, '98115')).toThrow(InsuranceValidationError);
+    });
+
+    it('should throw an error for an invalid zip code', () => {
+      expect(() => calculatePremium(30, 2020, 0, 0, 'SW1A 1AA')).toThrow(InsuranceValidationError);
     });
   });
 });
