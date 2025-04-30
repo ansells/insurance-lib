@@ -8,6 +8,12 @@ A TypeScript library for calculating auto insurance premiums based on various fa
 npm install insurance-lib
 ```
 
+## Testing
+
+```bash
+npm test
+```
+
 ## Usage
 
 ```typescript
